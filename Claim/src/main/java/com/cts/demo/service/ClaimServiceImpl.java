@@ -98,9 +98,11 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public String deleteClaimById(long claimId) {
+    public String deleteClaimById(long claimId) throws ClaimNotFoundException {
         log.info("Deleting claim with ID: {}", claimId);
+        if (!repository.existsById(claimId)) {
+            throw new ClaimNotFoundException("Claim not found with ID: " + claimId);
+        }
         repository.deleteById(claimId); // Delete claim by ID
         return "Claim deleted successfully";
-    }
-}
+    }}

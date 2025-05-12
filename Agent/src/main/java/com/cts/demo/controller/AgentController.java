@@ -29,7 +29,7 @@ public class AgentController {
 	 * Adds a new agent to the system.
 	 */
 	@PostMapping("/save")
-	public String saveAgent(@RequestBody @Validated Agent Agent) {
+	public String saveAgent(@RequestBody @Validated Agent Agent) throws AgentNotFoundException {
 		log.info("Agent Saved");
 		return service.saveAgent(Agent);
 	}
@@ -38,7 +38,7 @@ public class AgentController {
 	 * Updates existing agent information.
 	 */
 	@PutMapping("/update")
-	public Agent updateAgent(@RequestBody @Validated Agent Agent) {
+	public Agent updateAgent(@RequestBody @Validated Agent Agent) throws AgentNotFoundException {
 		log.info("Agent Updated");
 		return service.updateAgent(Agent);
 	}
@@ -47,7 +47,7 @@ public class AgentController {
 	 * Deletes an agent based on the provided ID.
 	 */
 	@DeleteMapping("/delete/{aid}")
-	public String deleteAgent(@PathVariable("aid") @Validated long AgentId) {
+	public String deleteAgent(@PathVariable("aid") @Validated long AgentId) throws AgentNotFoundException {
 		log.info("Agent Deleted");
 		return service.deleteAgent(AgentId);
 	}
@@ -74,7 +74,7 @@ public class AgentController {
 	 * Fetches a list of all agents in the system.
 	 */
 	@GetMapping("/searchAll")
-	public List<Agent> searchAll() {
+	public List<Agent> searchAll() throws AgentNotFoundException {
 		log.info("Search All Agents ");
 		return service.getAllAgent();
 	}

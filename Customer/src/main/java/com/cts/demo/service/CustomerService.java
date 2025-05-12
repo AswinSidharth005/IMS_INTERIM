@@ -13,17 +13,17 @@ public interface CustomerService {
 	/**
 	 * Adds a new customer record.
 	 */
-	String saveCustomer(Customer customer);
+	String saveCustomer(Customer customer) throws CustomerNotFoundException;
 
 	/**
 	 * Updates the details of an existing customer.
 	 */
-	Customer updateCustomer(Customer customer);
+	Customer updateCustomer(Customer customer) throws CustomerNotFoundException;
 
 	/**
 	 * Removes a customer based on their ID.
 	 */
-	String deleteCustomer(long customerId);
+	String deleteCustomer(long customerId) throws CustomerNotFoundException;
 
 	/**
 	 * Fetches a customer by ID. Throws CustomerNotFoundException if not found.
@@ -33,12 +33,12 @@ public interface CustomerService {
 	/**
 	 * Retrieves a customer based on their name.
 	 */
-	Customer searchCustomerByName(String customerName);
+	Customer searchCustomerByName(String customerName) throws CustomerNotFoundException;
 
 	/**
 	 * Returns a list of all customers.
 	 */
-	List<Customer> getAllCustomer();
+	List<Customer> getAllCustomer() ;
 
 	/**
 	 * Links a policy to a customer using policy ID, customer ID, and policy type.

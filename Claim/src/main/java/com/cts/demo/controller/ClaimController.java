@@ -114,9 +114,9 @@ public class ClaimController {
      * @return ResponseEntity containing a success message and HTTP status OK (200).
      */
     @DeleteMapping("/{claimId}")
-    public ResponseEntity<String> deleteClaimById(@PathVariable long claimId) {
+    public ResponseEntity<String> deleteClaimById(@PathVariable long claimId) throws ClaimNotFoundException {
         logger.info("Deleting claim with ID: {}", claimId);
-        String message = claimService.deleteClaimById(claimId);
-        return ResponseEntity.ok(message);
+        claimService.deleteClaimById(claimId); // No need to capture the message if you handle the exception
+        return new ResponseEntity<>("Claim deleted successfully", HttpStatus.OK);
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.cts.demo.dto.Agent;
 import com.cts.demo.dto.Customer;
+import com.cts.demo.exception.PolicyNotFoundException;
 import com.cts.demo.project.Policy;
 import com.cts.demo.service.policyService;
 //Response Body + Controller
@@ -44,21 +45,21 @@ public class policyController {
 
 	// Retreive Policy
 	@GetMapping("/retrieveById/{pid}")
-	public Policy retrievePolicy(@PathVariable("pid") long policyId) {
+	public Policy retrievePolicy(@PathVariable("pid") long policyId)throws PolicyNotFoundException {
 		logger.info("Retrieving policy by ID: {}", policyId);
 		return service.retrievePolicy(policyId);
 	}
 
 	// Delete Policy
 	@DeleteMapping("/deletePolicy/{pid}")
-	public String archivePolicy(@PathVariable("pid") long policyId) {
+	public String archivePolicy(@PathVariable("pid") long policyId) throws PolicyNotFoundException{
 		logger.info("Archiving policy with ID: {}", policyId);
 		return service.archivePolicy(policyId);
 	}
 
 	// Retreive All Policy
 	@GetMapping("/retrieveAll")
-	public List<Policy> retrieveAll() {
+	public List<Policy> retrieveAll()throws PolicyNotFoundException {
 		logger.info("Retrieving all policies");
 		return service.retrieveAll();
 	}
@@ -66,7 +67,7 @@ public class policyController {
 	// Assign Customer to Policy
 	@PutMapping("/assignPoliciesToCustomer/{pid}/{cid}/{pType}")
 	public Customer assignPoliciesToCustomer(@PathVariable("pid") long policyId, @PathVariable("cid") long customerId,
-			@PathVariable("pType") String policyType) {
+			@PathVariable("pType") String policyType) throws PolicyNotFoundException{
 		logger.info("Assigning policy (ID: {}) of type '{}' to customer (ID: {})", policyId, policyType, customerId);
 		return service.assignPolicyToCustomer(policyId, customerId, policyType);
 	}
@@ -74,7 +75,7 @@ public class policyController {
 	// Assign Policy to Agent
 	@PutMapping("/assignPoliciesToAgent/{pid}/{aid}/{pType}")
 	public Agent assignPoliciesToAgent(@PathVariable("pid") long policyId, @PathVariable("aid") long agentId,
-			@PathVariable("pType") String policyType) {
+			@PathVariable("pType") String policyType) throws PolicyNotFoundException{
 		logger.info("Assigning policy (ID: {}) of type '{}' to agent (ID: {})", policyId, policyType, agentId);
 		return service.assignPolicyToAgent(policyId, agentId, policyType);
 	}

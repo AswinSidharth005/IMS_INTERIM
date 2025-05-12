@@ -44,11 +44,21 @@ public class CustomerServiceImpl implements CustomerService {
 		return repository.save(customer);
 	}
 	//Customer is Deleted
+//	@Override
+//	public String deleteCustomer(long customerId) {
+//		logger.info("Removing customer with ID: {}", customerId);
+//		repository.deleteById(customerId);
+//		return "Customer deleted successfully";
+//	}
 	@Override
-	public String deleteCustomer(long customerId) {
-		logger.info("Removing customer with ID: {}", customerId);
-		repository.deleteById(customerId);
-		return "Customer deleted successfully";
+	public String deleteCustomer(long customerId) throws CustomerNotFoundException {
+	    logger.info("Removing customer with ID: {}", customerId);
+	    if (!repository.existsById(customerId)) {
+	        logger.warn("Deletion failed: Customer ID not found: {}", customerId);
+	        throw new CustomerNotFoundException("Customer with the given ID not found for deletion.");
+	    }
+	    repository.deleteById(customerId);
+	    return "Customer deleted successfully";
 	}
 	//Customer is Searched By ID
 	@Override

@@ -1,5 +1,6 @@
 package com.cts.demo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -75,10 +76,41 @@ class ClaimApplicationTests {
        assertEquals(claims, result);
    }
    @Test
-   void deleteClaimById() {
-       Claim claim = new Claim(1, 101L, 4, 50000, "IN-REVIEW");
-       doNothing().when(repository).deleteById(claim.getClaimId());
-       String response = service.deleteClaimById(claim.getClaimId());
+   void deleteClaimById_ExistingClaim() throws ClaimNotFoundException {
+       long claimId = 1L;
+
+       // Mock the behavior of existsById to return true (claim exists)
+       when(repository.existsById(claimId)).thenReturn(true);
+
+       // Mock the behavior of deleteById to do nothing
+       doNothing().when(repository).deleteById(claimId);
+
+       // Call the service method
+       String response = service.deleteClaimById(claimId);
+
+       // Assert that the response is as expected
        assertEquals("Claim deleted successfully", response);
+
+       // Verify that deleteById was called exactly once
+       verify(repository, times(1)).deleteById(claimId);
+       verify(repository, times(1)).existsById(claimId);
    }
+
+   @Test
+   void deleteClaimById_NonExistingClaim() {
+       long claimId = 2L;
+
+       // Mock the behavior of existsById to return false (claim does not exist)
+       when(repository.existsById(claimId)).thenReturn(false);
+
+       // Call the service method and assert that it throws ClaimNotFoundException
+       assertThrows(ClaimNotFoundException.class, () -> service.deleteClaimById(claimId));
+
+       // Verify that existsById was called exactly once
+       verify(repository, times(1)).existsById(claimId);
+
+       // Verify that deleteById was never called
+       verify(repository, never()).deleteById(claimId);
+   }
+
 }

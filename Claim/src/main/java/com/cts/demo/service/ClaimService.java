@@ -18,5 +18,5 @@ public interface ClaimService {
 
 	List<Claim> getAllClaims(); // Gets all claims.
 
-	String deleteClaimById(long claimId); // Deletes a claim by ID.
+	String deleteClaimById(long claimId) throws ClaimNotFoundException; // Deletes a claim by ID.
 }

@@ -13,7 +13,7 @@ public interface AgentService {
 	/**
 	 * New Agent is Saved
 	 */
-	String saveAgent(Agent agent);
+	String saveAgent(Agent agent) throws AgentNotFoundException;
 
 	/**
 	 * Updates an existing agent and returns the updated agent object.
@@ -21,7 +21,7 @@ public interface AgentService {
 	 * @param agent The agent to be updated.
 	 * @return The updated agent.
 	 */
-	Agent updateAgent(Agent agent);
+	Agent updateAgent(Agent agent) throws AgentNotFoundException;
 
 	/**
 	 * Deletes Agent with ID
@@ -29,7 +29,7 @@ public interface AgentService {
 	 * @param agentId The ID of the agent to be deleted.
 	 * @return Confirmation message after deletion.
 	 */
-	String deleteAgent(long agentId);
+	String deleteAgent(long agentId) throws AgentNotFoundException;
 
 	/**
 	 * Searches Agent By ID
@@ -54,7 +54,7 @@ public interface AgentService {
 	 * 
 	 * @return List of all agents.
 	 */
-	List<Agent> getAllAgent();
+	List<Agent> getAllAgent() throws AgentNotFoundException;
 
 	/**
 	 * Assigns Policy and Return updated Object
