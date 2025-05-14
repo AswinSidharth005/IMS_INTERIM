@@ -1,24 +1,27 @@
 package com.cts.demo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
 
 import com.cts.demo.dto.Agent;
 import com.cts.demo.dto.Customer;
-import com.cts.demo.dto.Policy1;
-import com.cts.demo.dto.Policy2;
 import com.cts.demo.exception.PolicyNotFoundException;
 import com.cts.demo.feignclient.AgentClient;
 import com.cts.demo.feignclient.CustomerClient;
@@ -27,83 +30,151 @@ import com.cts.demo.project.Policy;
 import com.cts.demo.repository.policyRepository;
 import com.cts.demo.service.policyServiceImpl;
 
-@ExtendWith(MockitoExtension.class)
+public class PolicyApplicationTests {
 
-class PolicyApplicationTests {
+    @Mock
+    private policyRepository repository;
 
-	@Mock
-	policyRepository repository;
+    @Mock
+    private CustomerClient customerClient;
 
-	@Mock
-	AgentClient agentClient;
+    @Mock
+    private AgentClient agentClient;
 
-	@Mock
-	CustomerClient customerClient;
-	
-	@Mock
-	NotificationClient notificationClient;
+    @Mock
+    private NotificationClient notificationClient;
 
-	@InjectMocks
-	policyServiceImpl service;
+    @InjectMocks
+    private policyServiceImpl policyService;
 
-	@Test
-	void savePolicy() {
-		Policy policy = new Policy(123, "Car Policy", 60000, "Car expences", LocalDate.of(2025, 01, 01));
-		Mockito.when(repository.save(policy)).thenReturn(policy);
-		String response = service.savePolicy(policy);
-		assertEquals("Policy saved successfully", response);
-	}
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-	@Test
-	void updatePolicy() {
-		Policy policy1 = new Policy(123, "Health Policy", 30000, "Car expences", LocalDate.of(2025, 01, 01));
-		Mockito.when(repository.save(policy1)).thenReturn(policy1);
-		Policy response = service.updatePolicy(policy1);
-		assertEquals(policy1, response);
-	}
+    @Test
+    public void testSavePolicy() {
+        Policy policy = new Policy();
+        when(repository.save(policy)).thenReturn(policy);
 
-	@Test
-	void retrievePolicy() throws PolicyNotFoundException {
-		Policy policy1 = new Policy(123, "Car Policy", 80000, "Car expences", LocalDate.of(2025, 01, 01));
-		Mockito.when(repository.findById(123L)).thenReturn(Optional.of(policy1));
-		Policy result = service.retrievePolicy(123L);
-		assertEquals(policy1, result);
+        String result = policyService.savePolicy(policy);
+        assertEquals("Policy saved successfully", result);
+        verify(repository, times(1)).save(policy);
+        verify(notificationClient, times(1)).notify(anyString(), anyLong(), anyLong());
+    }
 
-	}
+    @Test
+    public void testUpdatePolicy() {
+        Policy policy = new Policy();
+        when(repository.save(policy)).thenReturn(policy);
 
-	@Test
-	void archivePolicy() throws PolicyNotFoundException {
-		Policy policy1 = new Policy(123, "Car Policy", 80000, "car expences", LocalDate.of(2025, 01, 01));
-		Mockito.doNothing().when(repository).deleteById(policy1.getPolicyId());
-		String response = service.archivePolicy(policy1.getPolicyId());
-		assertEquals("Policy deleted successfully", response);
+        Policy result = policyService.updatePolicy(policy);
+        assertEquals(policy, result);
+        verify(repository, times(1)).save(policy);
+    }
 
-	}
+    @Test
+    public void testRetrievePolicy() throws PolicyNotFoundException {
+        long policyId = 1L;
+        Policy policy = new Policy();
+        when(repository.findById(policyId)).thenReturn(Optional.of(policy));
 
-//	@Test
-//	void retrieveAll() throws PolicyNotFoundException {
-//		List<Policy> list = Arrays.asList(
-//				new Policy(123, "Car Policy", 80000, "Car expences", LocalDate.of(2025, 01, 01)),
-//				new Policy(124, "term Policy", 90000, "Car expences", LocalDate.of(2025, 01, 01)));
-//		Mockito.when(repository.findAll()).thenReturn(list);
-//		List<Policy> resPolicy = service.retrieveAll();
-//		assertEquals(list, resPolicy);
-//	}
+        Policy result = policyService.retrievePolicy(policyId);
+        assertEquals(policy, result);
+        verify(repository, times(1)).findById(policyId);
+    }
 
 
-//	@Test
-//	void assignPolicyToAgent() throws PolicyNotFoundException {
-//		Policy policy1 = new Policy(123, "Car Policy", 80000, "Car expences", LocalDate.of(2025, 01, 01));
-//		Policy2 p1 = new Policy2();
-//		p1.setAssignedPolicies(policy1.getPolicyName());
-//		p1.setPolicyId(policy1.getPolicyId());
-//		List<Policy2> policies = new ArrayList<>();
-//		policies.add(p1);
-//		Agent agent = new Agent(2401189, "aswin", "9751222269", policies);
-//
-//		Mockito.when(agentClient.assignPoliciesToAgent(policy1.getPolicyId(), 1, policy1.getPolicyName()))
-//				.thenReturn(agent);
-//		Agent response = service.assignPolicyToAgent(policy1.getPolicyId(), 1, policy1.getPolicyName());
-//		assertEquals(agent, response);
-//	}
+
+    @Test
+    public void testArchivePolicy() throws PolicyNotFoundException {
+        long policyId = 1L;
+        when(repository.existsById(policyId)).thenReturn(true);
+
+        String result = policyService.archivePolicy(policyId);
+        assertEquals("Policy deleted successfully", result);
+        verify(repository, times(1)).deleteById(policyId);
+    }
+
+    @Test
+    public void testArchivePolicyNotFound() {
+        long policyId = 1L;
+        when(repository.existsById(policyId)).thenReturn(false);
+
+        assertThrows(PolicyNotFoundException.class, () -> {
+            policyService.archivePolicy(policyId);
+        });
+        verify(repository, never()).deleteById(policyId);
+    }
+
+
+    @Test
+    public void testRetrieveAllNotFound() {
+        when(repository.findAll()).thenReturn(new ArrayList<>());
+
+        assertThrows(PolicyNotFoundException.class, () -> {
+            policyService.retrieveAll();
+        });
+        verify(repository, times(1)).findAll();
+    }
+
+    @Test
+    public void testAssignPolicyToCustomer() throws PolicyNotFoundException {
+        long policyId = 1L;
+        long customerId = 1L;
+        String policyType = "Health";
+        when(repository.existsById(policyId)).thenReturn(true);
+        Customer customer = new Customer();
+        when(customerClient.assignPoliciesToCustomer(policyId, customerId, policyType)).thenReturn(customer);
+
+        Customer result = policyService.assignPolicyToCustomer(policyId, customerId, policyType);
+        assertEquals(customer, result);
+        verify(repository, times(1)).existsById(policyId);
+        verify(notificationClient, times(1)).notify(anyString(), eq(customerId), eq(policyId));
+        verify(customerClient, times(1)).assignPoliciesToCustomer(policyId, customerId, policyType);
+    }
+
+    @Test
+    public void testAssignPolicyToCustomerNotFound() {
+        long policyId = 1L;
+        long customerId = 1L;
+        String policyType = "Health";
+        when(repository.existsById(policyId)).thenReturn(false);
+
+        assertThrows(PolicyNotFoundException.class, () -> {
+            policyService.assignPolicyToCustomer(policyId, customerId, policyType);
+        });
+        verify(repository, times(1)).existsById(policyId);
+        verify(notificationClient, never()).notify(anyString(), eq(customerId), eq(policyId));
+        verify(customerClient, never()).assignPoliciesToCustomer(policyId, customerId, policyType);
+    }
+
+    @Test
+    public void testAssignPolicyToAgent() throws PolicyNotFoundException {
+        long policyId = 1L;
+        long agentId = 1L;
+        String policyType = "Health";
+        when(repository.existsById(policyId)).thenReturn(true);
+        Agent agent = new Agent();
+        when(agentClient.assignPoliciesToAgent(policyId, agentId, policyType)).thenReturn(agent);
+
+        Agent result = policyService.assignPolicyToAgent(policyId, agentId, policyType);
+        assertEquals(agent, result);
+        verify(repository, times(1)).existsById(policyId);
+        verify(agentClient, times(1)).assignPoliciesToAgent(policyId, agentId, policyType);
+    }
+
+    @Test
+    public void testAssignPolicyToAgentNotFound() {
+        long policyId = 1L;
+        long agentId = 1L;
+        String policyType = "Health";
+        when(repository.existsById(policyId)).thenReturn(false);
+
+        assertThrows(PolicyNotFoundException.class, () -> {
+            policyService.assignPolicyToAgent(policyId, agentId, policyType);
+        });
+        verify(repository, times(1)).existsById(policyId);
+        verify(agentClient, never()).assignPoliciesToAgent(policyId, agentId, policyType);
+    }
 }
