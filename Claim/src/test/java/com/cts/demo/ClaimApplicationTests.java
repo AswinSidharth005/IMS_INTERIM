@@ -82,9 +82,6 @@ public class ClaimApplicationTests {
         assertEquals("Claim not found.", result);
     }
 
-
-
-
     @Test
     public void testGetClaimById() throws ClaimNotFoundException {
         long claimId = 1L;
