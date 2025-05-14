@@ -127,5 +127,20 @@ class CustomerApplicationTests {
 		List<Customer> custs = service.getAllCustomer();
 		assertEquals(customers, custs);
 	}
+//	@Test
+//	void deleteTest() throws CustomerNotFoundException{
+//		Policy1 p1 = new Policy1();
+//		p1.setPolicyType("Health");
+//		p1.setPolicyId(201);
+//		List<Policy1> policies = new ArrayList<>();
+//		policies.add(p1);
+//		Customer customer = new Customer(2113017, "Aswin", "aswin@gmail.com", "9751222269", "karur",
+//				policies);
+//		long userId = customer.getCustomerId();
+//		Mockito.doNothing().when(repository).deleteById(userId);
+//		String response = service.deleteCustomer(userId);
+//		assertEquals("Customer deleted successfully", response);
+//
+//	}
 
 }
